@@ -63,6 +63,91 @@ struct MainTabView: View {
     }
 }
 
+struct ConsentVista: View {
+    let steerer: TrafficPulseSteerer
+    
+    var body: some View {
+        GeometryReader { geometry in
+            ZStack {
+                Color.black.ignoresSafeArea()
+                
+                Image("car")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: geometry.size.width, height: geometry.size.height)
+                    .ignoresSafeArea()
+                    .opacity(0.9)
+                
+                if geometry.size.width < geometry.size.height {
+                    VStack(spacing: 12) {
+                        Spacer()
+                        titleText
+                            .multilineTextAlignment(.center)
+                        subtitleText
+                            .multilineTextAlignment(.center)
+                        actionButtons
+                    }
+                    .padding(.bottom, 24)
+                } else {
+                    HStack {
+                        Spacer()
+                        VStack(alignment: .leading, spacing: 12) {
+                            Spacer()
+                            titleText
+                            subtitleText
+                        }
+                        Spacer()
+                        VStack {
+                            Spacer()
+                            actionButtons
+                        }
+                        Spacer()
+                    }
+                    .padding(.bottom, 24)
+                }
+            }
+        }
+        .ignoresSafeArea()
+        .preferredColorScheme(.dark)
+    }
+    
+    private var titleText: some View {
+        Text("ALLOW NOTIFICATIONS ABOUT\nBONUSES AND PROMOS")
+            .font(.system(size: 23, weight: .black, design: .monospaced))
+            .foregroundColor(.white)
+            .padding(.horizontal, 12)
+    }
+    
+    private var actionButtons: some View {
+        VStack(spacing: 12) {
+            Button {
+                steerer.acceptConsent()
+            } label: {
+                Image("car_claim")
+                    .resizable()
+                    .frame(width: 290, height: 50)
+            }
+            
+            Button {
+                steerer.skipConsent()
+            } label: {
+                Image("skp_car")
+                    .resizable()
+                    .frame(width: 270, height: 38)
+            }
+        }
+        .padding(.horizontal, 12)
+    }
+    
+    private var subtitleText: some View {
+        Text("STAY TUNED WITH BEST OFFERS FROM\nOUR CASINO")
+            .font(.system(size: 15, weight: .heavy, design: .monospaced))
+            .foregroundColor(.white.opacity(0.7))
+            .padding(.horizontal, 12)
+    }
+    
+}
+
 // MARK: - Custom Tab Bar
 struct CustomTabBar: View {
     @Binding var selected: AppTab

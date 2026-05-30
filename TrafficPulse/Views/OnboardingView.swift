@@ -190,6 +190,35 @@ struct OnboardPage1: View {
     }
 }
 
+struct OfflineScreen: View {
+    
+    var body: some View {
+        GeometryReader { geometry in
+            ZStack {
+                Color.black.ignoresSafeArea()
+                
+                Image("car_speed")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: geometry.size.width, height: geometry.size.height)
+                    .ignoresSafeArea()
+                    .opacity(0.55)
+                    .blur(radius: 6)
+                
+                appError
+            }
+        }
+        .ignoresSafeArea()
+    }
+    
+    private var appError: some View {
+        Image("error_wifi")
+            .resizable()
+            .frame(width: 230, height: 200)
+    }
+    
+}
+
 // MARK: - Page 2: Drag gesture
 struct OnboardPage2: View {
     @Binding var isVisible: Bool
