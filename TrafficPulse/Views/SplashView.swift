@@ -239,6 +239,7 @@ struct SplashView: View {
                 OfflineScreen()
             }
         }
+        .navigationViewStyle(StackNavigationViewStyle())
     }
 
     private func startAnimation() {

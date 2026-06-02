@@ -88,12 +88,63 @@ class TripViewModel: ObservableObject {
         )
     }
 
+    var weekly2Stats: WeeklyStats {
+        let cal = Calendar.current
+        let weekAgo = cal.date(byAdding: .day, value: -14, to: Date())!
+        let weekTrips = trips.filter { $0.date >= weekAgo }
+        guard !weekTrips.isEmpty else { return .empty }
+
+        // find bussiest day
+        var dayCountMap: [String: Int] = [:]
+        let dayFormatter = DateFormatter()
+        dayFormatter.dateFormat = "EEEE"
+        for t in weekTrips {
+            let d = dayFormatter.string(from: t.date)
+            dayCountMap[d, default: 0] += 1
+        }
+        let bussiestDay = dayCountMap.max(by: { $0.value < $1.value })?.key ?? "—"
+
+        // find best day (highest avg score)
+        var dayScoreMap: [String: [Int]] = [:]
+        for t in weekTrips {
+            let d = dayFormatter.string(from: t.date)
+            dayScoreMap[d, default: []].append(t.trafficScore)
+        }
+        let bestDay = dayScoreMap.mapValues { $0.reduce(0, +) / $0.count }
+            .max(by: { $0.value < $1.value })?.key ?? "—"
+
+        return WeeklyStats(
+            totalTrips: weekTrips.count,
+            totalDistanceKm: weekTrips.reduce(0) { $0 + $1.distanceKm },
+            totalDelayMinutes: weekTrips.reduce(0) { $0 + $1.delayMinutes },
+            avgTrafficScore: weekTrips.reduce(0) { $0 + $1.trafficScore } / weekTrips.count,
+            totalFuelCost: 0,
+            bussiestDay: bussiestDay,
+            bestDay: bestDay
+        )
+    }
+
     // day-by-day scores for chart (last 7 days)
     func dailyScores() -> [(String, Double)] {
         let cal = Calendar.current
         let formatter = DateFormatter()
         formatter.dateFormat = "EEE"
         return (0..<7).reversed().map { offset -> (String, Double) in
+            let day = cal.date(byAdding: .day, value: -offset, to: Date())!
+            let dayStr = formatter.string(from: day)
+            let dayTrips = trips.filter { cal.isDate($0.date, inSameDayAs: day) }
+            let avg = dayTrips.isEmpty ? 0.0 : Double(dayTrips.reduce(0) { $0 + $1.trafficScore }) / Double(dayTrips.count)
+            return (dayStr, avg)
+        }
+    }
+
+
+    // day-by-day scores for chart (last 7 days)
+    func dailyScordases() -> [(String, Double)] {
+        let cal = Calendar.current
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEE"
+        return (0..<9).reversed().map { offset -> (String, Double) in
             let day = cal.date(byAdding: .day, value: -offset, to: Date())!
             let dayStr = formatter.string(from: day)
             let dayTrips = trips.filter { cal.isDate($0.date, inSameDayAs: day) }
